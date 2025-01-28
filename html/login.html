@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Theadicoder</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/CSS/style.css">
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #4338ca;
+            --text-primary: #1f2937;
+            --text-secondary: #9ca3af;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f3f4f6;
+            --card-bg: #ffffff;
+            --card-border: #e5e7eb;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme='dark'] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #111827;
+            --card-bg: #374151;
+            --card-border: #4b5563;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .login-box {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid var(--card-border);
+        }
+
+        .login-box h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: var(--text-primary);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid var(--card-border);
+            border-radius: 0.5rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary-color);
+            color: #ffffff;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .login-btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .forgot-password a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box" data-aos="fade-up">
+            <h2>Welcome Back</h2>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <input type="email" name="email" placeholder="Email" required aria-label="Email">
+                </div>
+                <div class="form-group">
+                    <input type="password" name="password" placeholder="Password" required aria-label="Password">
+                </div>
+                <button type="submit" class="login-btn">Log In</button>
+                <div class="forgot-password">
+                    <a href="mailto:thakuradi8368@gmail.com?subject=Request%20to%20Reset%20Password&body=Dear%20Team,%0A%0AI%20am%20requesting%20assistance%20in%20resetting%20my%20password.%20Please%20guide%20me%20through%20the%20process.%0A%0AThank%20you,%0A%5BYour%20Name%5D">Forgot Password?</a>
+                    <a href="/HTML/Signup.html"> Signup Here </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 1000,
+            once: true
+        });
+
+        // Handle login functionality
+        async function handleLogin(event) {
+            event.preventDefault();
+
+            try {
+                const email = document.querySelector('input[name="email"]').value.trim();
+                const password = document.querySelector('input[name="password"]').value;
+
+                if (!email || !password) {
+                    alert('Please fill in all fields.');
+                    return;
+                }
+
+                const { auth } = await import('../js/firebase-config.js');
+                const { signInWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js");
+
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                if (user) {
+                    alert('Login successful! Redirecting to the homepage...');
+                    window.location.href = '/Index.html';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                let errorMessage = 'Login failed. Please try again.';
+
+                switch (error.code) {
+                    case 'auth/invalid-email':
+                        errorMessage = 'Invalid email address.';
+                        break;
+                    case 'auth/user-not-found':
+                        errorMessage = 'No account found with this email.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage = 'Incorrect password.';
+                        break;
+                }
+
+                alert(errorMessage);
+            }
+        }
+    </script>
+</body>
+</html>
